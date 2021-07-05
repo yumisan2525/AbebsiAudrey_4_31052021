@@ -1,5 +1,5 @@
 function editNav() {
-    let x = document.getElementById("myTopnav");
+    var x = document.getElementById("myTopnav");
     if (x.className === "topnav") {
         x.className += " responsive";
     } else {
@@ -11,284 +11,146 @@ function editNav() {
 const modalbg = document.querySelector(".bground");
 const modalBtn = document.querySelectorAll(".modal-btn");
 const formData = document.querySelectorAll(".formData");
-const btnSubmit = document.getElementById("submit");
-const form = document.getElementById("form");
-const closeBtn = document.getElementById("close-modal");
-
-//selection de tous les inputs
-
-const inputFirst = document.querySelector('input[name=first]');
-const inputLast = document.querySelector('input[name=last]');
-const inputEmail = document.querySelector('input[name=email]');
-const inputBirth = document.querySelector('input[name=birthdate]');
-const inputTourn = document.querySelector('input[name=quantity]');
-const inputCity = document.querySelector('input[name=location]');
-const inputConditions = document.querySelector('input[name=conditions]');
-
-
-//selection de l'id de la div validation 
-let resultFirst = document.getElementById("first-validate");
-let resultLast = document.getElementById("last-validate");
-let resultEmail = document.getElementById("email-validate");
-let resultBirth = document.getElementById("birthdate-validate");
-let resultTourn = document.getElementById("tournament-validate");
-let resultCity = document.getElementById("city-validate");
-let resultConditions = document.getElementById("cgv-validate");
-let resultDate = document.getElementById("date-validation");
-
-//regex
-// lettre et 2 caractères minimun
-let regPrenomNom = /[a-zA-Z]{2,64}/;
-//lettres, caractères, @ lettres, caratères, POINT , lettres caractères
-let regEmail = /^([a-z\d\.-]+)@([a-z\d-]+)\.([a-z]{2,16})(\.[a-z]{2,16})?$/;
-
-
+const submitBtn = document.querySelector(".btn-submit");
+const formBody = document.getElementsByName("reserve");
+// objet contenant les champs du formulaire
+const form = {
+    first: document.getElementById("first"),
+    last: document.getElementById("last"),
+    email: document.getElementById("email"),
+    birthdate: document.getElementById("birthdate"),
+    tournament: document.getElementById("quantity"),
+    city: document.querySelectorAll("input[type=radio]"),
+    terms: document.getElementById("checkbox1")
+};
+// objet qui créé la div qui va afficher le message d'erreur
+const errorMsg = {
+    first: document.createElement("div"),
+    last: document.createElement("div"),
+    email: document.createElement("div"),
+    birthdate: document.createElement("div"),
+    tournament: document.createElement("div"),
+    city: document.createElement("div"),
+    terms: document.createElement("div")
+};
+// expression reguliere pour valider les differentes chaines de caractères
+const regex = {
+    mail: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/,
+    name: /^[a-zA-ZÀ-Ÿà-ÿ]+([\s\'\.\-][a-zA-ZÀ-Ÿà-ÿ]+)?([\s\'\.\-][a-zA-ZÀ-Ÿà-ÿ]+)*$/,
+    quantity: /^\d{1,}$/
+};
 
 // launch modal event
-modalBtn.forEach((btn) => btn.addEventListener("click", launchModal));
-closeBtn.addEventListener("click", closeModal);
-
+modalBtn.forEach(btn => btn.addEventListener("click", launchModal));
 
 // launch modal form
 function launchModal() {
     modalbg.style.display = "block";
 }
+
 // fermer la modale
-function closeModal() {
-    modalbg.style.display = 'none';
+const closeModalBtn = document.querySelector(".close");
+
+closeModalBtn.addEventListener("click", function() {
+    modalbg.style.display = "none";
+});
+
+// application du style pour les msg d'erreur
+for (const property in errorMsg) {
+    errorMsg[property].style.color = "#e54858";
+    errorMsg[property].style.fontSize = "12px";
 }
 
-function displayNone(e) {
-    e.style.display = "none";
+// validation d'un champ de texte
+function validText(entry, regex, container, msg, index, msg2) {
+    formData[index].appendChild(container);
+    if (entry.length < 2 && msg2.length > 0) {
+        container.innerHTML = "Veuillez entrer 2 caractères ou plus pour le champ du " + msg2 + ".";
+        return false;
+    }
+    if (entry.match(regex)) {
+        container.innerHTML = "";
+        return true;
+    } else {
+        container.innerHTML = msg;
+        return false;
+    }
 }
 
-// afficher message d'erreur
-function afficherMessage(inputdiv) {
-    inputdiv.style.display = 'inline-block';
+// validation de la date de naissance
+function isDateValid() {
+    let date = new Date(form.birthdate.value).getTime();
+    let year = form.birthdate.value.substring(0, 2);
+    formData[3].appendChild(errorMsg.birthdate);
+    if (parseInt(year) < 19 || isNaN(date) || Date.now() < date) {
+        errorMsg.birthdate.innerHTML = "Vous devez saisir une date de naissance.";
+        return false;
+    } else {
+        errorMsg.birthdate.innerHTML = "";
+        return true;
+    }
 }
 
-
-/* bordure rouge quand false */
-const textC = document.querySelectorAll('.text-control');
-textC.forEach(items => {
-    items.style.border = '2px solid #e54858'
-});
-
-//  bordure en vert quand ok
-function borderGreen(indexDuChamp) {
-    indexDuChamp.style.border = '2px solid green';
-}
-
-inputFirst.addEventListener('keyup', function(e) {
-    let value = e.target.value;
-    if (value.match(regPrenomNom)) {
-        displayNone(resultFirst);
-        borderGreen(textC[0]);
-    } else {
-        afficherMessage(resultFirst);
-        resultFirst.innerHTML = "Veuillez entrer 2 caractères ou plus pour le champ du nom.";
-    }
-});
-
-inputLast.addEventListener('keyup', function(e) {
-    let value = e.target.value;
-    if (value.match(regPrenomNom)) {
-        displayNone(resultLast);
-        borderGreen(textC[1]);
-    } else {
-        afficherMessage(resultLast);
-        resultLast.innerHTML = "Veuillez entrer 2 caractères ou plus pour le champ du prénom.";
-    }
-});
-
-inputEmail.addEventListener('keyup', function(e) {
-    let value = e.target.value;
-    if (value.match(regEmail)) {
-        displayNone(resultEmail);
-        borderGreen(textC[2]);
-    } else {
-        afficherMessage(resultEmail);
-        resultEmail.innerHTML = "Vous devez choisir une adresse électronique valide.";
-    }
-});
-
-
-inputBirth.addEventListener('change', function(e) {
-    if (inputBirth.value.length > 0) {
-        // sup à 0 pas d'alerte
-        displayNone(resultBirth);
-        borderGreen(textC[3]);
-    } else {
-        afficherMessage(resultBirth);
-        resultBirth.innerHTML = "Vous devez entrer votre date de naissance.";
-    }
-});
-
-inputTourn.addEventListener('change', function(e) {
-    // écouter changement d'état
-    if (inputTourn.value.length > 0) {
-        displayNone(resultTourn);
-        borderGreen(textC[4]);
-    } else {
-        afficherMessage(resultTourn);
-        resultTourn.innerHTML = "Merci renseigner le nombre de tournoi";
-    }
-});
-
-
-
-
-// acceptation des CGV 
-document.getElementById("checkbox1").attributes["required"] = "";
-
-
-// notification lorsque le formulaire est ok
-function notification() {
-    document.getElementById("message").style.display = "block";
-
-}
-
-let count = 0;
-
-function caseVide(input) {
-    input.style.display = 'block'
-    input.innerHTML = 'Merci de compléter ce champ'
-};
-
-//fonction message erreur Nom/prenom
-function caseErrorPrenomNom(messageDiv) {
-    messageDiv.style.display = 'block';
-    messageDiv.innerHTML = 'Merci de renseigner au moins deux caractères'
-};
-
-// verification Nom/prenom
-function nomPrenom(input, divError) {
-
-    if (input.value.length == 0) {
-        afficherMessage(divError);
-        caseVide(divError);
-        count++;
-    } else if (regPrenomNom.test(input.value) == false) {
-        caseErrorPrenomNom(divError);
-        count++
-
-    } else count = 0
-};
-
-// verification email 
-function mail(input, divError) {
-    if (input.value.length == 0) {
-        afficherMessage(divError);
-        caseVide(divError);
-        count++;
-
-    } else if (regEmail.test(input.value) == false) {
-        afficherMessage(divError);
-        resultEmail.innerHTML = 'Merci de renseigner une adresse mail valide';
-        count++;
-    } else count = 0
-};
-
-
-// date
-function date() {
-
-    if (inputBirth.value.length == 0) {
-        afficherMessage(resultDate);
-        resultBirth.innerHTML = 'Veuillez saisir votre date de naissance'
-        count++;
-    }
-};
-
-
-//tournoi
-function tournoi() {
-    if (inputTourn.value.length == 0) {
-        afficherMessage(resultTourn);
-        resultTourn.innerHTML = "Vous devez renseigner le nombre de tournoi";
-        count++
-    }
-};
-
-
-// ville 
-function countCity() {
-    let theCity = document.getElementsByClassName("location"),
-        i,
-        villeCount = 0;
-    for (i = 0; i < theCity.length; i++) {
-        // vérifier chacune des villes
-        if (theCity[i].checked) {
-            villeCount++;
+// validation de la selection de la ville
+function isCityValid() {
+    formData[5].appendChild(errorMsg.city);
+    for (let i = 0; i < form.city.length; i++) {
+        if (form.city[i].checked) {
+            errorMsg.city.innerHTML = "";
+            return true;
         }
     }
-    return villeCount;
-};
+    errorMsg.city.innerHTML = "Vous devez choisir une option.";
+    return false;
+}
 
-document.querySelectorAll('.location').forEach(item => {
-    item.addEventListener('change', e => {
-        if (e.target.checked) {
-            displayNone(resultCity);
-        }
-    })
-});
-
-function City() {
-    if (countCity() == 0) {
-        // fonction appelante count 
-        afficherMessage(resultCity);
-        resultCity.innerHTML = "Vous devez choisir une option.";
-        count++;
+// validation des conditions d'utilisation
+function isTermsValid() {
+    const checkbox = document.getElementsByClassName("checkbox2-label");
+    checkbox[0].appendChild(errorMsg.terms);
+    //formData[6].appendChild(errorMsg.terms);
+    if (form.terms.checked) {
+        errorMsg.terms.innerHTML = "";
+        return true;
+    } else {
+        errorMsg.terms.innerHTML = "Vous devez vérifier que vous acceptez les termes et conditions.";
+        return false;
     }
-};
+}
 
+// affichage des remerciements
+function displayThanks() {
+    formBody[0].style.display = "none";
+    const modalBody = document.getElementsByClassName("modal-body");
+    const confirmMsg = document.createElement("div");
+    const confirmBtn = document.createElement("div");
+    modalBody[0].appendChild(confirmMsg);
+    modalBody[0].appendChild(confirmBtn);
+    confirmMsg.setAttribute("class", "confirmation");
+    confirmMsg.innerHTML = "Merci !<br>Votre réservation a été reçue.";
+    confirmBtn.className = "btn-confirm";
+    confirmBtn.innerHTML = "Fermer";
+    confirmBtn.addEventListener("click", function() {
+        validate();
+    });
+}
 
-//conditions generales
-function boutonCgv() {
-    if (inputConditions.checked == false) {
-        afficherMessage(resultConditions);
-        resultConditions.innerHTML = 'Vous devez accepter les conditions générales';
-        count++
+// envoie du formulaire
+function validate() {
+    formBody[0].submit();
+    return true;
+}
+
+// evenement qui va verifier tous les champs au clic
+submitBtn.addEventListener("click", function(event) {
+    event.preventDefault();
+    if (validText(form.first.value, regex.name, errorMsg.first, "Veuillez saisir un prénom correct.", 0, "prénom") &
+        validText(form.last.value, regex.name, errorMsg.last, "Veuillez saisir un nom correct.", 1, "nom") &
+        validText(form.email.value, regex.mail, errorMsg.email, "Veuillez saisir une adresse mail correcte.", 2, "") &
+        isDateValid() &
+        validText(form.tournament.value, regex.tournament, errorMsg.tournament, "Veuillez entrer un nombre entier positif.", 4, "") &
+        isCityValid() &
+        isTermsValid()) {
+        displayThanks();
     }
-};
-
-
-// Check tout est ok
-function validation() {
-    nomPrenom(inputFirst, resultFirst);
-    nomPrenom(inputLast, resultLast);
-    mail(inputEmail, resultEmail);
-    date();
-    tournoi();
-    ville();
-    boutonCgv();
-};
-
-
-form.addEventListener("submit", e => {
-    e.preventDefault();
-    validation();
-    if (count == 0) {
-        modalbg.style.display = "none";
-        notification();
-        form.reset();
-    }
-});
-
-
-
-// ferme la notification de reservation bien recue
-
-const closeNotification = document.getElementById("close-notification");
-const btnNotification = document.getElementById('btn-notification');
-const messageClose = document.getElementById('message')
-
-closeNotification.addEventListener('click', function() {
-    messageClose.style.display = 'none';
-
-});
-
-
-closeNotification.addEventListener('click', function() {
-    notificationClose.style.display = 'none';
 });
