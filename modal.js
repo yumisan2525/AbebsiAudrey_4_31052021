@@ -144,8 +144,8 @@ function validate() {
 // evenement qui va verifier tous les champs au clic
 submitBtn.addEventListener("click", function(event) {
     event.preventDefault();
-    if (validText(form.first.value, regex.name, errorMsg.first, "Veuillez entrer 2 caractères ou plus pour le champ du nom.", 0, "") &
-        validText(form.last.value, regex.name, errorMsg.last, "Veuillez entrer 2 caractères ou plus pour le champ du prénom.", 1, "") &
+    if (validText(form.first.value, regex.name, errorMsg.first, "Veuillez entrer 2 caractères ou plus pour le champ du nom.", 0, "nom") &
+        validText(form.last.value, regex.name, errorMsg.last, "Veuillez entrer 2 caractères ou plus pour le champ du prénom.", 1, "prénon") &
         validText(form.email.value, regex.mail, errorMsg.email, "Veuillez saisir une adresse mail correcte.", 2, "") &
         isDateValid() &
         validText(form.tournament.value, regex.tournament, errorMsg.tournament, "Veuillez choisir une donnée", 4, "") &
